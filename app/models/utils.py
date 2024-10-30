@@ -7,7 +7,7 @@ from fastapi import Depends
 
 def create_db_engine():
     DB_PASSWORD = os.environ.get('MESSANGER_DB_PASSWORD')
-    postgresql_url = f"postgresql://postgres:{DB_PASSWORD}@localhost:5432/postgres"
+    postgresql_url = f"postgresql://postgres:{DB_PASSWORD}@localhost:5432/messenger"
 
     connect_args = {}
     engine = create_engine(postgresql_url, connect_args=connect_args)
