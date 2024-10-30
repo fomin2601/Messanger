@@ -5,11 +5,10 @@ from fastapi import Depends
 
 
 def create_db_engine():
-    sqlite_file_name = "database.db"
-    sqlite_url = f"sqlite:///{sqlite_file_name}"
+    postgresql_url = f"postgresql://postgres:AsDf1235!@localhost:5432/postgres"
 
-    connect_args = {"check_same_thread": False}
-    engine = create_engine(sqlite_url, connect_args=connect_args)
+    connect_args = {}
+    engine = create_engine(postgresql_url, connect_args=connect_args)
 
     return engine
 
