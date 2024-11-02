@@ -3,9 +3,9 @@ from app.models.utils import SessionDep
 from app.models.rooms import Room
 
 
-def get_room_info(session: SessionDep, room_name: str):
-    #room = session.exec(select)
-    return '1'
+def get_room_info(session: SessionDep, room_id: int):
+    room = session.get(Room, room_id)
+    return room
 
 
 def create_room(session: SessionDep, room: Room):
