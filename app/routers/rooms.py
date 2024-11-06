@@ -1,7 +1,6 @@
-from typing import Optional
 from fastapi import APIRouter, status, HTTPException
 from app.controllers import rooms
-from app.models.utils import SessionDep
+from app.internal.utils import SessionDep
 from app.models.rooms import Room
 
 

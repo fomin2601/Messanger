@@ -4,7 +4,6 @@ from sqlmodel import create_engine, SQLModel, Session
 from fastapi import Depends
 
 
-
 def create_db_engine():
     DB_PASSWORD = os.environ.get('MESSANGER_DB_PASSWORD')
     postgresql_url = f"postgresql://postgres:{DB_PASSWORD}@localhost:5432/messenger"
@@ -14,7 +13,9 @@ def create_db_engine():
 
     return engine
 
+
 engine = create_db_engine()
+
 
 def create_db_and_tables(engine):
     SQLModel.metadata.create_all(engine)
@@ -26,3 +27,5 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+

@@ -1,8 +1,6 @@
-from typing import Annotated
 from fastapi import FastAPI
-from sqlmodel import Session
 
-from .models.utils import create_db_engine, create_db_and_tables, get_session, engine
+from app.internal.utils import create_db_and_tables, engine
 from .routers import rooms, users
 
 app = FastAPI()

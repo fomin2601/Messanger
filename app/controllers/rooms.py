@@ -1,6 +1,5 @@
-from sqlmodel import select
 from sqlalchemy.exc import IntegrityError
-from app.models.utils import SessionDep
+from app.internal.utils import SessionDep
 from app.models.rooms import Room
 
 
