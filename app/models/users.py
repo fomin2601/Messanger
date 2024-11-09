@@ -3,9 +3,15 @@ from sqlmodel import SQLModel, Field, Relationship
 from .links import RoomUserLink
 
 
-class User(SQLModel):
-    id: int
+class UserBase(SQLModel):
     username: str = Field(index=True)
+
+
+class UserLogin(UserBase):
+    hashed_password: str = Field()
+
+class User(UserBase):
+    id: int
     first_name: Optional[str] = Field(default='', alias='firstName')
     second_name: Optional[str] = Field(default='', alias='lastName')
     patronymic: Optional[str] = Field(default='')

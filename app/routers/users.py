@@ -5,6 +5,6 @@ router = APIRouter(
     tags=['users']
 )
 
-@router.get('/', tags=['users'])
+@router.get('/')
 async def get_user_rooms():
     pass
