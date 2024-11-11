@@ -1,18 +1,19 @@
 import os
 from typing import Annotated, Optional
-from datetime import timedelta, datetime, timezone
+import time
 
 import jwt
 from sqlmodel import create_engine, SQLModel, Session
-from fastapi import Depends
+from fastapi import Depends, Request, HTTPException
 from fastapi.security import (
-    OAuth2PasswordBearer,
+    HTTPBearer,
+    HTTPAuthorizationCredentials
 )
 from passlib.context import CryptContext
 
 
 def create_db_engine():
-    DB_PASSWORD = os.environ.get('MESSANGER_DB_PASSWORD')
+    DB_PASSWORD = os.environ.get('MESSENGER_DB_PASSWORD')
     postgresql_url = f"postgresql://postgres:{DB_PASSWORD}@localhost:5432/messenger"
 
     connect_args = {}
@@ -37,29 +38,64 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 
 class Auth:
-    _SECRET_KEY = "8227b96022bcb051d8b29834be2b23a5db1c47a3614bda615613152a36a48497"
+    _SECRET_KEY = os.environ.get('MESSENGER_SECRET_KEY')
     _ALGORITHM = "HS256"
-    _ACCESS_TOKEN_EXPIRE_MINUTES = 1
+    _ACCESS_TOKEN_EXPIRE_MINUTES = 24*60*7
 
     def __init__(self):
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        self.oauth2_scheme = OAuth2PasswordBearer(
-            tokenUrl='login',
-            scopes={
-                'me': 'Read info about current user',
-                'admin': 'You can do whatever you want',
-                'supervisor': 'Chef of something important',
-                'methodist': 'They pretend to be useful',
-                'owner': 'They can only own their groups'
-            }
-        )
 
-    def create_access_token(self, data: dict):
+    def create_jwt(self, data: dict):
         to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + timedelta(self._ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = time.time() + self._ACCESS_TOKEN_EXPIRE_MINUTES * 60
         to_encode.update({'exp': expire})
         encoded_jwt = jwt.encode(to_encode, self._SECRET_KEY, algorithm=self._ALGORITHM)
 
         return encoded_jwt
 
+    def decode_jwt(self, token):
+        payload = jwt.decode(token, self._SECRET_KEY, algorithms=[self._ALGORITHM])
+        username: str = payload.get('sub', None)
+        expired = payload.get('exp', None)
+        print(username, expired > time.time(), expired - time.time())
+
+        if username is None or expired is None:
+            return None
+
+        if expired < time.time():
+            return None
+
+        return payload
+
+
 auth_controller = Auth()
+
+
+class JWTBearer(HTTPBearer):
+    def __init__(self, auto_error: bool = True):
+        super(JWTBearer, self).__init__(auto_error=auto_error)
+
+    async def __call__(self, request: Request):
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        if credentials:
+            if not credentials.scheme == 'Bearer':
+                raise HTTPException(status_code=403, detail='Invalid authentication scheme')
+            if not self.verify_jwt(credentials.credentials):
+                raise HTTPException(status_code=403, detail='Either token invalid or expired')
+            return credentials.credentials
+        else:
+            raise HTTPException(status_code=403, detail='Invalid authorization code')
+
+    @staticmethod
+    def verify_jwt(jwtoken: str) -> bool:
+        is_token_valid: bool = False
+
+        try:
+            payload = auth_controller.decode_jwt(jwtoken)
+        except:
+            payload = None
+
+        if payload:
+            is_token_valid = True
+
+        return is_token_valid

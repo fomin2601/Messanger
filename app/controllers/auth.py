@@ -41,7 +41,7 @@ def login_for_access_token(session: SessionDep, user: UserLogin):
             detail="Incorrect username or password",
         )
 
-    access_token = auth_controller.create_access_token(
+    access_token = auth_controller.create_jwt(
         data={'sub': user_entity.username},
     )
     return Token(access_token=access_token, token_type='Bearer')

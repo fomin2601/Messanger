@@ -1,17 +1,23 @@
-from fastapi import APIRouter, status, HTTPException, Response
+from fastapi import APIRouter, status, HTTPException, Response, Depends
 from app.controllers import rooms
-from app.internal.utils import SessionDep
+from app.internal.utils import SessionDep, JWTBearer
 from app.models.rooms import Room
+from typing import Annotated
 
 
 router = APIRouter(
     prefix='/rooms',
-    tags=['rooms']
+    tags=['rooms'],
+    dependencies=[Depends(JWTBearer())],
 )
 
 
 @router.get('/{room_id}', status_code=status.HTTP_200_OK)
-async def get_room_info(response: Response, session: SessionDep, room_id: int):
+async def get_room_info(
+        response: Response,
+        session: SessionDep,
+        room_id: int
+):
     room = rooms.get_room_info(session=session, room_id=room_id)
     if not room:
         response.status_code = status.HTTP_404_NOT_FOUND
