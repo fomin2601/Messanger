@@ -1,12 +1,9 @@
 from fastapi import APIRouter, status, HTTPException, Response
+from fastapi.encoders import jsonable_encoder
 from app.controllers import auth
 from app.models.auth import Token
-from app.models.users import UserDB, UserLogin
-from app.internal.utils import auth_controller
+from app.models.users import UserDB, UserLogin, UserUpdate
 from app.internal.utils import SessionDep
-from fastapi.security import (
-    OAuth2PasswordRequestForm,
-)
 
 router = APIRouter(
     prefix='/auth',
@@ -17,6 +14,7 @@ router = APIRouter(
 @router.post('/login', status_code=status.HTTP_200_OK)
 async def login_for_access_token(response: Response, session: SessionDep, user: UserLogin) -> Token:
     token = auth.login_for_access_token(session=session, user=user)
+
     return token
 
 
@@ -28,4 +26,14 @@ async def registration(response: Response, session: SessionDep, user: UserDB):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return HTTPException(status_code=400, detail='That username is taken')
 
-    return username
+    return jsonable_encoder({'Status': True})
+
+@router.patch('/registration', status_code=status.HTTP_202_ACCEPTED)
+async def change_password(response: Response, session: SessionDep, user: UserLogin, data: UserUpdate):
+    username = auth.update_user(session=session, user=user, data=data)
+
+    if username:
+        return jsonable_encoder({'Status': True})
+
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Something really bad happened')
+

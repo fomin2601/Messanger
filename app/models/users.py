@@ -10,13 +10,23 @@ class UserBase(SQLModel):
 class UserLogin(UserBase):
     hashed_password: str = Field()
 
+
 class User(UserBase):
-    id: int
+    id: Optional[int] = Field(default=0)
     first_name: Optional[str] = Field(default='', alias='firstName')
     second_name: Optional[str] = Field(default='', alias='lastName')
     patronymic: Optional[str] = Field(default='')
     role: Optional[int] = Field(default=0)
-    description: Optional[str] = Field()
+    description: Optional[str] = Field(default='Nothing to say about that person')
+
+
+class UserUpdate(SQLModel):
+    first_name: Optional[str] = Field(default='', alias='firstName')
+    second_name: Optional[str] = Field(default='', alias='lastName')
+    patronymic: Optional[str] = Field(default='')
+    role: Optional[int] = Field(default=0)
+    description: Optional[str] = Field(default='Nothing to say about that person')
+    hashed_password: Optional[str] = Field()
 
 
 class UserDB(User, table=True):

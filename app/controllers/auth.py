@@ -1,13 +1,11 @@
-from app.models.users import UserDB, UserLogin
-from app.models.auth import Token, TokenData
+from app.models.users import UserDB, UserLogin, UserUpdate
+from app.models.auth import Token
 from app.internal.utils import SessionDep, auth_controller
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
-from datetime import timedelta, datetime, timezone
-import jwt
-from jwt.exceptions import InvalidTokenError
 from fastapi import HTTPException, status
+from typing import Union
 
 
 def register_user(session: SessionDep, user: UserDB):
@@ -33,7 +31,7 @@ def register_user(session: SessionDep, user: UserDB):
 
 
 def login_for_access_token(session: SessionDep, user: UserLogin):
-    user_entity = check_user(session, user)
+    user_entity = check_user(session=session, user=user)
 
     if not user:
         raise HTTPException(
@@ -47,9 +45,10 @@ def login_for_access_token(session: SessionDep, user: UserLogin):
     return Token(access_token=access_token, token_type='Bearer')
 
 
-def check_user(session: SessionDep, user: UserLogin):
+def check_user(session: SessionDep, user: Union[UserDB, UserLogin, UserUpdate]):
     statement = select(UserDB).where(UserDB.username == user.username)
     user_entity = session.exec(statement).scalar()
+
     if user_entity is None:
         return False
 
@@ -59,5 +58,20 @@ def check_user(session: SessionDep, user: UserLogin):
     return user_entity
 
 
+def update_user(session: SessionDep, user: UserLogin, data: UserUpdate):
+    user_entity = check_user(session=session, user=user)
 
+    if not user_entity:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User doesn\'t exist'
+        )
+
+    data_for_update = data.model_dump(exclude_unset=True)
+    user_entity.sqlmodel_update(data_for_update)
+    session.add(user_entity)
+    session.commit()
+    session.refresh(user_entity)
+
+    return True
 
