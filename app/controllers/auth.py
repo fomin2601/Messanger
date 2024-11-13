@@ -58,7 +58,7 @@ def check_user(session: SessionDep, user: Union[UserDB, UserLogin, UserUpdate]):
     return user_entity
 
 
-def update_user(session: SessionDep, user: UserLogin, data: UserUpdate):
+def update_password(session: SessionDep, user: UserLogin, data: UserUpdate):
     user_entity = check_user(session=session, user=user)
 
     if not user_entity:

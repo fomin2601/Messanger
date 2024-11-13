@@ -28,9 +28,10 @@ async def registration(response: Response, session: SessionDep, user: UserDB):
 
     return jsonable_encoder({'Status': True})
 
+
 @router.patch('/registration', status_code=status.HTTP_202_ACCEPTED)
 async def change_password(response: Response, session: SessionDep, user: UserLogin, data: UserUpdate):
-    username = auth.update_user(session=session, user=user, data=data)
+    username = auth.update_password(session=session, user=user, data=data)
 
     if username:
         return jsonable_encoder({'Status': True})
