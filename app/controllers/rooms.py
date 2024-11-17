@@ -46,6 +46,6 @@ def add_users_to_room(session: SessionDep, room_id: int, users: List[int]):
 
 def get_users_in_room(session: SessionDep, room_id: int):
     statement = select(RoomUserLink).where(RoomUserLink.room_id == room_id)
-    links = [link[0] for link in session.exec(statement).all() if link is not None]
+    links = session.exec(statement).scalars().all()
 
     return links
