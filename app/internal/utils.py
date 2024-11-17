@@ -1,15 +1,16 @@
 import os
-from typing import Annotated, Optional
+from typing import Annotated
 import time
 
 import jwt
 from sqlmodel import create_engine, SQLModel, Session
-from fastapi import Depends, Request, HTTPException
+from fastapi import Depends, Request, HTTPException, WebSocket
 from fastapi.security import (
     HTTPBearer,
     HTTPAuthorizationCredentials
 )
 from passlib.context import CryptContext
+from app.models.messages import Message
 
 
 def create_db_engine():
@@ -98,3 +99,22 @@ class JWTBearer(HTTPBearer):
             is_token_valid = True
 
         return is_token_valid
+
+
+class WebsocketConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    @staticmethod
+    async def send_message(message: Message, websocket: WebSocket):
+        await websocket.send_json(message)
+
+
+websocket_manager = WebsocketConnectionManager()

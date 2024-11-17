@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 from .links import RoomUserLink
 
@@ -38,3 +38,4 @@ class UserDB(User, table=True):
         back_populates='users',
         link_model=RoomUserLink
     )
+    messages: List["Message"] = Relationship(back_populates='users')
