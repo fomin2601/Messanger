@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 from app.internal.utils import SessionDep
 from app.models.rooms import Room
 from app.models.links import RoomUserLink
@@ -41,3 +42,10 @@ def add_users_to_room(session: SessionDep, room_id: int, users: List[int]):
     session.bulk_insert_mappings(RoomUserLink, data)
     session.commit()
     return True
+
+
+def get_users_in_room(session: SessionDep, room_id: int):
+    statement = select(RoomUserLink).where(RoomUserLink.room_id == room_id)
+    links = [link[0] for link in session.exec(statement).all() if link is not None]
+
+    return links

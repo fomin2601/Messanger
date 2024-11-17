@@ -1,6 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
-from .users import UserDB, RoomUserLink
+from .users import UserDB
+from .links import RoomUserLink, RoomUserLinkPublic
+from pydantic import BaseModel
 
 
 class Room(SQLModel, table=True):
@@ -14,3 +16,10 @@ class Room(SQLModel, table=True):
 
     def __repr__(self):
         return self.room_name
+
+
+class RoomWithUsersScheme(BaseModel):
+    id: int
+    room_name: str
+    is_group: bool
+    users: Optional[List[RoomUserLinkPublic]]

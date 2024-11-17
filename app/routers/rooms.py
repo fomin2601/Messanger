@@ -3,7 +3,10 @@ from fastapi.encoders import jsonable_encoder
 from typing import List, Optional
 from app.controllers import rooms
 from app.internal.utils import SessionDep, JWTBearer
-from app.models.rooms import Room
+from app.models.rooms import Room, RoomWithUsersScheme
+from app.models.links import RoomUserLinkPublic
+from pydantic import parse_obj_as
+
 
 
 router = APIRouter(
@@ -13,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get('/{room_id}', status_code=status.HTTP_200_OK)
+@router.get('/{room_id}', status_code=status.HTTP_200_OK, response_model=RoomWithUsersScheme)
 async def get_room_info(
         session: SessionDep,
         room_id: int
@@ -22,8 +25,15 @@ async def get_room_info(
     if not room:
         raise HTTPException(status_code=404, detail='Room not found')
 
-    return room
+    links = rooms.get_users_in_room(session=session, room_id=room_id)
 
+    if not links:
+        return room
+
+    data = room.model_dump()
+    data.update({'users': links})
+
+    return data
 
 @router.post('/{room_id}', status_code=status.HTTP_200_OK)
 async def add_users_to_room(session: SessionDep, room_id: int, users: List[int]):
