@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.internal.utils import SessionDep
+from app.internal.utils import SessionDep, auth_controller
 from app.models.users import UserDB
 from app.models.links import RoomUserLink
 from app.models.rooms import Room
@@ -24,3 +24,11 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
     rooms = session.exec(statement).scalars().all()
 
     return rooms
+
+
+def get_current_user(session: SessionDep, token: str):
+    username = auth_controller.decode_jwt(token)['sub']
+    statement = select(UserDB).where(UserDB.username == username)
+    user = session.exec(statement).scalar()
+
+    return user

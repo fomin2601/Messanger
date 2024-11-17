@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from typing import List
+from typing import List, Annotated
 
 from app.internal.utils import JWTBearer, SessionDep
 from app.controllers import users
@@ -29,3 +29,16 @@ async def get_rooms_of_user(session: SessionDep, user_id: int):
         )
 
     return rooms
+
+
+@router.get('/', status_code=status.HTTP_200_OK, response_model=User)
+async def get_current_user(token: Annotated[str, Depends(JWTBearer())], session: SessionDep):
+    user = users.get_current_user(session=session, token=token)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Current user is not in our system, where is he from?'
+        )
+
+    return user
