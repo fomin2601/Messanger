@@ -28,7 +28,10 @@ async def get_room_info(
     links = rooms.get_users_in_room(session=session, room_id=room_id)
 
     if not links:
-        return room
+        data = room.model_dump()
+        data.update({'users': []})
+
+        return data
 
     data = room.model_dump()
     data.update({'users': links})
