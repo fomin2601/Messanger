@@ -38,4 +38,4 @@ class UserDB(User, table=True):
         back_populates='users',
         link_model=RoomUserLink
     )
-    messages: List["Message"] = Relationship(back_populates='users')
+    #messages: List["Message"] = Relationship(back_populates='users')
