@@ -57,7 +57,6 @@ class Auth:
         payload = jwt.decode(token, self._SECRET_KEY, algorithms=[self._ALGORITHM])
         username: str = payload.get('sub', None)
         expired = payload.get('exp', None)
-        print(username, expired > time.time(), expired - time.time())
 
         if username is None or expired is None:
             return None
