@@ -4,8 +4,6 @@ from typing import List, Optional
 from app.controllers import rooms
 from app.internal.utils import SessionDep, JWTBearer
 from app.models.rooms import Room, RoomWithUsersScheme
-from app.models.links import RoomUserLinkPublic
-from pydantic import parse_obj_as
 
 
 
