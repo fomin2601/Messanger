@@ -6,7 +6,6 @@ from app.internal.utils import SessionDep, JWTBearer
 from app.models.rooms import Room, RoomWithUsersScheme
 
 
-
 router = APIRouter(
     prefix='/rooms',
     tags=['rooms'],
@@ -36,6 +35,7 @@ async def get_room_info(
 
     return data
 
+
 @router.post('/{room_id}', status_code=status.HTTP_200_OK)
 async def add_users_to_room(session: SessionDep, room_id: int, users: List[int]):
     status = rooms.add_users_to_room(session=session, room_id=room_id, users=users)
@@ -49,4 +49,4 @@ async def add_users_to_room(session: SessionDep, room_id: int, users: List[int])
 @router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_room(session: SessionDep, room: Room, users: Optional[List[int]] = None):
     room = rooms.create_room(session=session, room=room, users=users)
-    return f'Room {str(room.id)} was created'
+    return room.id
