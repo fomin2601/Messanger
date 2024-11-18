@@ -22,16 +22,16 @@ async def get_room_info(
     if not room:
         raise HTTPException(status_code=404, detail='Room not found')
 
-    links = rooms.get_users_in_room(session=session, room_id=room_id)
+    users = rooms.get_users_in_room(session=session, room_id=room_id)
 
-    if not links:
+    if not users:
         data = room.model_dump()
         data.update({'users': []})
 
         return data
 
     data = room.model_dump()
-    data.update({'users': links})
+    data.update({'users': users})
 
     return data
 

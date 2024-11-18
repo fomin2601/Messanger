@@ -46,6 +46,12 @@ def add_users_to_room(session: SessionDep, room_id: int, users: List[int]):
 
 def get_users_in_room(session: SessionDep, room_id: int):
     statement = select(RoomUserLink).where(RoomUserLink.room_id == room_id)
-    links = session.exec(statement).scalars().all()
+    users_id = [user.user_id for user in session.exec(statement).scalars().all()]
 
-    return links
+    if not users_id:
+        return False
+
+    statement = select(UserDB).where(UserDB.id.in_(users_id))
+    users = session.exec(statement).scalars().all()
+
+    return users
