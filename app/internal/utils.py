@@ -1,5 +1,5 @@
 import os
-from typing import Annotated
+from typing import Annotated, Dict, Tuple, List
 import time
 
 import jwt
@@ -103,18 +103,38 @@ class JWTBearer(HTTPBearer):
 
 class WebsocketConnectionManager:
     def __init__(self):
-        self.active_connections: list[WebSocket] = []
+        self.active_connections: Dict[Tuple[int, str], WebSocket] = {}
+        self.rooms: Dict[int, List[str]] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, room_id: int, username: str, websocket: WebSocket):
+        websocket_uid = (room_id, username)
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections[websocket_uid] = websocket
+        self.add_user_to_room(room_id=room_id, username=username)
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    def disconnect(self, room_id: int, username: str):
+        websocket_uid = (room_id, username)
+        self.active_connections.pop(websocket_uid)
 
-    @staticmethod
-    async def send_message(message: Message, websocket: WebSocket):
-        await websocket.send_json(message)
+    async def send_message(self, room_id: int, message: Dict, websocket: WebSocket):
+        print(message)
+        message_to_db = Message(**message)
+        room_connections = self.rooms.get(room_id, None)
+        if room_connections is None:
+            pass
+        else:
+            for user_connection in room_connections:
+                websocket_uid = (room_id, user_connection)
+                await self.active_connections[websocket_uid].send_json(message)
+
+    def add_user_to_room(self, room_id: int, username: str):
+        room = self.rooms.get(room_id, None)
+
+        if room is None:
+            self.rooms[room_id] = [username]
+
+        else:
+            self.rooms[room_id].append(username)
 
 
 websocket_manager = WebsocketConnectionManager()
