@@ -114,9 +114,11 @@ class WebsocketConnectionManager:
 
     def disconnect(self, room_id: int, username: str):
         websocket_uid = (room_id, username)
+        self.rooms[room_id].remove(username)
         self.active_connections.pop(websocket_uid)
 
-    async def send_message(self, room_id: int, message: Dict, websocket: WebSocket):
+    async def send_message(self, room_id: int, message: Dict):
+        print(self.active_connections)
         print(message)
         message_to_db = Message(**message)
         room_connections = self.rooms.get(room_id, None)
