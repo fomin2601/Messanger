@@ -117,17 +117,19 @@ class WebsocketConnectionManager:
         self.rooms[room_id].remove(username)
         self.active_connections.pop(websocket_uid)
 
-    async def send_message(self, room_id: int, message: Dict):
-        print(self.active_connections)
-        print(message)
-        message_to_db = Message(**message)
+    async def send_message(self, room_id: int, message: Message):
         room_connections = self.rooms.get(room_id, None)
+        data = {
+            'message': message.model_dump(),
+            'sender': message.sender.model_dump()
+        }
+
         if room_connections is None:
             pass
         else:
             for user_connection in room_connections:
                 websocket_uid = (room_id, user_connection)
-                await self.active_connections[websocket_uid].send_json(message)
+                await self.active_connections[websocket_uid].send_json(data)
 
     def add_user_to_room(self, room_id: int, username: str):
         room = self.rooms.get(room_id, None)
