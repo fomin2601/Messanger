@@ -1,7 +1,7 @@
 from typing import Dict
 from sqlalchemy import select
 from app.internal.utils import SessionDep
-from app.models.messages import Message
+from app.models.messages import Message, MessageScheme
 
 
 def save_message(session: SessionDep, message: Dict[str, str]):
@@ -20,5 +20,6 @@ def save_message(session: SessionDep, message: Dict[str, str]):
 def get_room_messages(session: SessionDep, room_id: int):
     statement = select(Message).where(Message.room_id == room_id)
     messages = session.exec(statement).scalars().all()
+    messages = [MessageScheme(message=message, sender=message.sender) for message in messages]
 
     return messages

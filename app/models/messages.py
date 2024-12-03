@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, Field, Relationship
+from pydantic import BaseModel
 import datetime
 from typing import Optional
+from app.models.users import User
 
 
 def get_datetime_factory():
@@ -19,4 +21,6 @@ class Message(SQLModel, table=True):
     room: Optional["Room"] = Relationship(back_populates='messages')
 
 
-
+class MessageScheme(BaseModel):
+    message: Message
+    sender: User
