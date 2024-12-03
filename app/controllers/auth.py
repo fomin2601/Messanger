@@ -33,7 +33,7 @@ def register_user(session: SessionDep, user: UserDB):
 def login_for_access_token(session: SessionDep, user: UserLogin):
     user_entity = check_user(session=session, user=user)
 
-    if not user:
+    if not user_entity:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
