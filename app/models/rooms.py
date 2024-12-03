@@ -13,6 +13,9 @@ class Room(SQLModel, table=True):
         link_model=RoomUserLink
     )
     is_group: bool = Field(default=False, alias='isGroup')
+    messages: List["Message"] = Relationship(
+        back_populates='room'
+    )
 
     def __repr__(self):
         return self.room_name

@@ -15,6 +15,8 @@ class Message(SQLModel, table=True):
     message_type: str = Field(default='text')
     sender_id: int = Field(foreign_key='userdb.id')
     sender: Optional["UserDB"] = Relationship(back_populates='messages')
+    room_id: int = Field(foreign_key='room.id')
+    room: Optional["Room"] = Relationship(back_populates='messages')
 
 
 

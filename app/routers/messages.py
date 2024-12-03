@@ -1,7 +1,8 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
+from typing import List
 from app.internal.utils import websocket_manager, SessionDep
-from app.controllers.messages import save_message
+from app.controllers import messages
+from app.models.messages import Message
 
 router = APIRouter(
     prefix='/messages',
@@ -15,7 +16,14 @@ async def message_exchange(websocket: WebSocket, room_id: int, username: str, se
     try:
         while True:
             message = await websocket.receive_json()
-            message = save_message(session=session, message=message)
+            message = messages.save_message(session=session, message=message)
             await websocket_manager.send_message(room_id=room_id, message=message)
     except WebSocketDisconnect:
         websocket_manager.disconnect(room_id=room_id, username=username)
+
+
+@router.get('/{room_id}', status_code=status.HTTP_200_OK, response_model=List[Message])
+async def get_room_messages(session: SessionDep, room_id: int):
+    room_messages = messages.get_room_messages(session=session, room_id=room_id)
+
+    return room_messages
