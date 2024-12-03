@@ -1,7 +1,6 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 from .links import RoomUserLink
-from .messages import Message
 
 
 class UserBase(SQLModel):
