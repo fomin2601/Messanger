@@ -2,7 +2,7 @@ from sqlalchemy import select
 
 from app.internal.utils import SessionDep, auth_controller
 from app.models.users import UserDB
-from app.models.links import RoomUserLink
+from app.models.links import RoomUserLink, UserRoleLink
 from app.models.rooms import Room
 
 
@@ -13,7 +13,9 @@ def get_all_users(session: SessionDep):
     data = []
     for user in users:
         user_json = user.model_dump()
-        user_json.update({'roles': [role.role for role in user.roles]})
+        statement = select(UserRoleLink).where(UserRoleLink.user_id == user.id)
+        roles = session.exec(statement).scalars().all()
+        user_json.update({'roles': [role.role for role in roles]})
         data.append(user_json)
 
     return data
@@ -38,6 +40,8 @@ def get_current_user(session: SessionDep, token: str):
     user = session.exec(statement).scalar()
 
     user_json = user.model_dump()
-    user_json.update({'roles': [role.role for role in user.roles]})
+    statement = select(UserRoleLink).where(UserRoleLink.user_id == user.id)
+    roles = session.exec(statement).scalars().all()
+    user_json.update({'roles': [role.role for role in roles]})
 
     return user_json

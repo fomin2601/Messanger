@@ -13,16 +13,17 @@ def register_user(session: SessionDep, user: UserRegistrationScheme):
     statement = select(UserDB).where(UserDB.username == user.username)
     is_username_taken = session.exec(statement).scalar()
 
-    if is_username_taken or len(user.roles) < 1:
+    if is_username_taken or not user.roles:
         return None
 
+    roles = user.roles
     user_entity = UserDB.parse_obj(user)
 
     session.add(user_entity)
     session.commit()
     session.refresh(user_entity)
 
-    add_roles_to_user(session=session, user=user_entity, roles=user.roles)
+    add_roles_to_user(session=session, user=user_entity, roles=roles)
 
     return user_entity.username
 
