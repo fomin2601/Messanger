@@ -2,7 +2,8 @@ from fastapi import APIRouter, status, HTTPException, Response
 from fastapi.encoders import jsonable_encoder
 from app.controllers import auth
 from app.models.auth import Token
-from app.models.users import UserDB, UserLogin, UserUpdate
+from app.models.users import UserLogin, UserUpdate
+from app.schemes.users import UserRegistrationScheme
 from app.internal.utils import SessionDep
 
 router = APIRouter(
@@ -19,7 +20,7 @@ async def login_for_access_token(response: Response, session: SessionDep, user: 
 
 
 @router.post('/registration', status_code=status.HTTP_201_CREATED)
-async def registration(response: Response, session: SessionDep, user: UserDB):
+async def registration(response: Response, session: SessionDep, user: UserRegistrationScheme):
     username = auth.register_user(session=session, user=user)
 
     if not username:

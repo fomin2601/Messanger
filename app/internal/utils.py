@@ -3,7 +3,7 @@ from typing import Annotated, Dict, Tuple, List
 import time
 
 import jwt
-from sqlmodel import create_engine, SQLModel, Session
+from sqlmodel import create_engine, SQLModel, Session, inspect, insert
 from fastapi import Depends, Request, HTTPException, WebSocket
 from fastapi.security import (
     HTTPBearer,
@@ -11,6 +11,7 @@ from fastapi.security import (
 )
 from passlib.context import CryptContext
 from app.models.messages import Message
+from app.config import predefined_tables
 
 
 def create_db_engine():
@@ -27,7 +28,20 @@ engine = create_db_engine()
 
 
 def create_db_and_tables(engine):
+    tables_to_predefine = [table for table in predefined_tables.keys() if not inspect(engine).has_table(table)]
     SQLModel.metadata.create_all(engine)
+    return tables_to_predefine
+
+
+def predefine_tables(engine, tables):
+    if tables:
+        with engine.connect() as connection:
+            for table in tables:
+                connection.execute(
+                    insert(SQLModel.metadata.tables[table]),
+                    predefined_tables[table]
+                )
+                connection.commit()
 
 
 def get_session():

@@ -1,33 +1,30 @@
 from app.models.users import UserDB, UserLogin, UserUpdate
+from app.models.links import UserRoleLink
+from app.schemes.users import UserRegistrationScheme
 from app.models.auth import Token
 from app.internal.utils import SessionDep, auth_controller
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from fastapi import HTTPException, status
-from typing import Union
+from typing import Union, List
 
 
-def register_user(session: SessionDep, user: UserDB):
+def register_user(session: SessionDep, user: UserRegistrationScheme):
     statement = select(UserDB).where(UserDB.username == user.username)
     is_username_taken = session.exec(statement).scalar()
 
     if is_username_taken:
         return None
 
-    try:
-        session.add(user)
-        session.commit()
-        session.refresh(user)
+    user_entity = UserDB.parse_obj(user)
 
-    except IntegrityError:
-        user.id = None
-        session.rollback()
-        session.add(user)
-        session.commit()
-        session.refresh(user)
+    session.add(user_entity)
+    session.commit()
+    session.refresh(user_entity)
 
-    return user.username
+    add_roles_to_user(session=session, user=user_entity, roles=user.roles)
+
+    return user_entity.username
 
 
 def login_for_access_token(session: SessionDep, user: UserLogin):
@@ -75,3 +72,8 @@ def update_password(session: SessionDep, user: UserLogin, data: UserUpdate):
 
     return True
 
+
+def add_roles_to_user(session: SessionDep, user: UserDB, roles: List[int]):
+    assigned_roles = [{'user_id': user.id, 'role_id': role} for role in roles]
+    session.bulk_insert_mappings(UserRoleLink, assigned_roles)
+    session.commit()

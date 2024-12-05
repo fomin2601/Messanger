@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.internal.utils import create_db_and_tables, engine
+from app.internal.utils import create_db_and_tables, engine, predefine_tables
 from .routers import rooms, users, auth, messages
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,5 +22,6 @@ app.add_middleware(
 
 @app.on_event('startup')
 def on_startup():
-    create_db_and_tables(engine)
+    tables_to_predefine = create_db_and_tables(engine)
+    predefine_tables(engine, tables_to_predefine)
 

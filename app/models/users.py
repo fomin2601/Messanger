@@ -1,5 +1,6 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
+
 from .links import RoomUserLink
 
 
@@ -17,7 +18,6 @@ class User(UserBase):
     first_name: Optional[str] = Field(default='', alias='firstName')
     second_name: Optional[str] = Field(default='', alias='lastName')
     patronymic: Optional[str] = Field(default='')
-    role: Optional[int] = Field(default=0)
     description: Optional[str] = Field(default='Nothing to say about that person')
 
 
