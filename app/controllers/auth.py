@@ -13,7 +13,7 @@ def register_user(session: SessionDep, user: UserRegistrationScheme):
     statement = select(UserDB).where(UserDB.username == user.username)
     is_username_taken = session.exec(statement).scalar()
 
-    if is_username_taken:
+    if is_username_taken or len(user.roles) < 1:
         return None
 
     user_entity = UserDB.parse_obj(user)
