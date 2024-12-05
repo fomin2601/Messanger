@@ -10,7 +10,13 @@ def get_all_users(session: SessionDep):
     statement = select(UserDB)
     users = session.exec(statement).scalars().all()
 
-    return users
+    data = []
+    for user in users:
+        user_json = user.model_dump()
+        user_json.update({'roles': [role.role for role in user.roles]})
+        data.append(user_json)
+
+    return data
 
 
 def get_rooms_of_user(session: SessionDep, user_id: int):
@@ -31,4 +37,7 @@ def get_current_user(session: SessionDep, token: str):
     statement = select(UserDB).where(UserDB.username == username)
     user = session.exec(statement).scalar()
 
-    return user
+    user_json = user.model_dump()
+    user_json.update({'roles': [role.role for role in user.roles]})
+
+    return user_json

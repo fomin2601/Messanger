@@ -4,6 +4,7 @@ from typing import List, Annotated
 from app.internal.utils import JWTBearer, SessionDep
 from app.controllers import users
 from app.models.users import User
+from app.schemes.users import UserPublicScheme
 from app.models.rooms import Room
 
 router = APIRouter(
@@ -13,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get('/userlist', status_code=status.HTTP_200_OK, response_model=List[User])
+@router.get('/userlist', status_code=status.HTTP_200_OK, response_model=List[UserPublicScheme])
 async def get_all_users(session: SessionDep):
     return users.get_all_users(session)
 
@@ -31,7 +32,7 @@ async def get_rooms_of_user(session: SessionDep, user_id: int):
     return rooms
 
 
-@router.get('/', status_code=status.HTTP_200_OK, response_model=User)
+@router.get('/', status_code=status.HTTP_200_OK, response_model=UserPublicScheme)
 async def get_current_user(token: Annotated[str, Depends(JWTBearer())], session: SessionDep):
     user = users.get_current_user(session=session, token=token)
 

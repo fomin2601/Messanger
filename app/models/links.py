@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional
 
 
@@ -15,3 +15,5 @@ class RoomUserLinkScheme(SQLModel):
 class UserRoleLink(SQLModel, table=True):
     user_id: int = Field(foreign_key='userdb.id', primary_key=True)
     role_id: int = Field(foreign_key='userrole.id', primary_key=True)
+    user: Optional["UserDB"] = Relationship(back_populates='roles')
+    role: Optional['UserRole'] = Relationship(back_populates='user_link')
