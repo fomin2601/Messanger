@@ -1,6 +1,6 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
 from typing import List
-from app.internal.utils import websocket_manager, SessionDep
+from app.internal.utils import websocket_manager, SessionDep, JWTBearer
 from app.controllers import messages
 from app.models.messages import MessageScheme
 
@@ -23,7 +23,12 @@ async def message_exchange(websocket: WebSocket, room_id: int, username: str, se
         websocket_manager.disconnect(room_id=room_id, username=username)
 
 
-@router.get('/{room_id}', status_code=status.HTTP_200_OK, response_model=List[MessageScheme])
+@router.get(
+    '/{room_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MessageScheme],
+    #dependencies=Depends(JWTBearer())
+)
 async def get_room_messages(session: SessionDep, room_id: int):
     room_messages = messages.get_room_messages(session=session, room_id=room_id)
 
