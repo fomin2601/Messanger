@@ -15,6 +15,7 @@ class UserRegistrationScheme(BaseModel):
 
 
 class UserPublicScheme(BaseModel):
+    id: int
     username: str
     first_name: str
     second_name: str
