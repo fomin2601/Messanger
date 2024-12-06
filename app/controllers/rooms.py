@@ -3,8 +3,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from app.internal.utils import SessionDep
 from app.models.rooms import Room
-from app.models.links import RoomUserLink
+from app.models.links import RoomUserLink, UserRoleLink
 from app.models.users import UserDB
+from app.schemes.users import UserPublicScheme
 
 
 def get_room_info(session: SessionDep, room_id: int):
@@ -53,5 +54,12 @@ def get_users_in_room(session: SessionDep, room_id: int):
 
     statement = select(UserDB).where(UserDB.id.in_(users_id))
     users = session.exec(statement).scalars().all()
+    users_json = []
+    for user in users:
+        user_json = user.model_dump()
+        statement = select(UserRoleLink).where(UserRoleLink.user_id == user_json['id'])
+        roles = [user_role_link.role for user_role_link in session.exec(statement).scalars().all()]
+        user_json.update({'roles': roles})
+        users_json.append(UserPublicScheme.parse_obj(user_json))
 
-    return users
+    return users_json

@@ -1,6 +1,7 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
-from .users import UserDB, User
+from .users import UserDB
+from app.schemes.users import UserPublicScheme
 from .links import RoomUserLink
 from pydantic import BaseModel
 
@@ -25,4 +26,4 @@ class RoomWithUsersScheme(BaseModel):
     id: int
     room_name: str
     is_group: bool
-    users: Optional[List[User]]
+    users: Optional[List[UserPublicScheme]]
