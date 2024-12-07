@@ -14,17 +14,14 @@ def get_room_info(session: SessionDep, room_id: int):
 
 
 def create_room(session: SessionDep, room: Room, users: Optional[List[int]] = None):
-    try:
-        session.add(room)
-        session.commit()
-        session.refresh(room)
+    is_room_exist = True if room.id is not None and session.get(Room, room.id) else False
 
-    except IntegrityError:
-        room.id = None
-        session.rollback()
-        session.add(room)
-        session.commit()
-        session.refresh(room)
+    if is_room_exist:
+        return False
+
+    session.add(room)
+    session.commit()
+    session.refresh(room)
 
     if users:
         add_users_to_room(session=session, room_id=room.id, users=users)
