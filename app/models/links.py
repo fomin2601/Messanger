@@ -5,6 +5,12 @@ from typing import Optional
 class RoomUserLink(SQLModel, table=True):
     room_id: int = Field(foreign_key='room.id', primary_key=True)
     user_id: int = Field(foreign_key='userdb.id', primary_key=True)
+    room: "Room" = Relationship(
+        back_populates='room_links'
+    )
+    user: "UserDB" = Relationship(
+        back_populates='user_links'
+    )
 
 
 class RoomUserLinkScheme(SQLModel):

@@ -39,3 +39,6 @@ class UserDB(User, table=True):
     messages: List["Message"] = Relationship(
         back_populates='sender'
     )
+    user_links: Optional[List["RoomUserLink"]] = Relationship(
+        back_populates='user'
+    )

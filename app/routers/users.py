@@ -3,9 +3,8 @@ from typing import List, Annotated
 
 from app.internal.utils import JWTBearer, SessionDep
 from app.controllers import users
-from app.models.users import User
-from app.schemes.users import UserPublicScheme
 from app.models.rooms import Room
+from app.schemes.users import UserPublicScheme, UserRoomScheme
 
 router = APIRouter(
     prefix='/users',
@@ -19,7 +18,7 @@ async def get_all_users(session: SessionDep):
     return users.get_all_users(session)
 
 
-@router.get('/{user_id}', status_code=status.HTTP_200_OK, response_model=List[Room])
+@router.get('/{user_id}', status_code=status.HTTP_200_OK, response_model=List[UserRoomScheme])
 async def get_rooms_of_user(session: SessionDep, user_id: int):
     rooms = users.get_rooms_of_user(session=session, user_id=user_id)
 

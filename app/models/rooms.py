@@ -1,9 +1,6 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 from .users import UserDB
-from app.schemes.users import UserPublicScheme
-from .links import RoomUserLink
-from pydantic import BaseModel
 
 
 class Room(SQLModel, table=True):
@@ -17,14 +14,9 @@ class Room(SQLModel, table=True):
     messages: List["Message"] = Relationship(
         back_populates='room'
     )
+    room_links: Optional[List["RoomUserLink"]] = Relationship(
+        back_populates='room'
+    )
 
     def __repr__(self):
         return self.room_name
-
-
-class RoomWithUsersScheme(BaseModel):
-    id: int
-    room_name: str
-    is_group: bool
-    creator_id: int
-    users: Optional[List[UserPublicScheme]]
