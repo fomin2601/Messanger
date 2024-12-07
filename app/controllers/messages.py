@@ -1,8 +1,9 @@
 from typing import Dict
 from sqlalchemy import select
 from app.internal.utils import SessionDep
-from app.models.messages import Message, MessageScheme
+from app.models.messages import Message
 from app.models.links import UserRoleLink
+from app.schemes.messages import MessageScheme
 from app.schemes.users import UserPublicScheme
 
 
