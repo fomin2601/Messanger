@@ -183,25 +183,25 @@ class KeysExchangeWebsocketManager:
         websocket_uid = (room_id, user_id)
         self.room_user_connections.pop(websocket_uid)
 
-    async def send_user_key_to_superuser(self, room_id: int, target_superuser_id: int, public_rsa_key: str):
+    async def send_user_key_to_superuser(self, room_id: int, target_superuser_id: int, data: Dict):
         websocket_uid = (room_id, target_superuser_id)
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            key = RSAScheme.parse_obj({'public_rsa_key': public_rsa_key})
-            await target_websocket.send_json(key)
+            #key = RSAScheme.parse_obj({'public_rsa_key': public_rsa_key})
+            await target_websocket.send_json(data)
 
         else:
             #TODO: Посмотреть, как ожидать коннекта пользователя
             pass
 
-    async def send_superuser_key_to_user(self, room_id: int, target_user_id: int, aes_key: int):
+    async def send_superuser_key_to_user(self, room_id: int, target_user_id: int, data: Dict):
         websocket_uid = (room_id, target_user_id)
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            key = AESScheme.parse_obj({'aes_key': aes_key})
-            await target_websocket.send_json(key)
+            #key = AESScheme.parse_obj({'aes_key': aes_key})
+            await target_websocket.send_json(data)
 
         else:
             # TODO: Посмотреть, как ожидать коннекта пользователя

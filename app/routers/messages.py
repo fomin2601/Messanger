@@ -56,17 +56,17 @@ async def keys_exchange(websocket: WebSocket, room_id: int, user_id: int, is_sup
             data = await websocket.receive_json()
             target_user_id = data['target_user_id']
             if is_superuser:
-                public_rsa_key = data['public_rsa_key']
+                #public_rsa_key = data['public_rsa_key']
                 await websocket_keys_exchange_manager.send_superuser_key_to_user(
                     target_user_id=target_user_id,
-                    public_rsa_key=public_rsa_key
+                    data=data
                 )
 
             else:
-                aes_key = data['aes_key']
+                #aes_key = data['aes_key']
                 await websocket_keys_exchange_manager.send_user_key_to_superuser(
                     target_superuser_id=target_user_id,
-                    aes_key=aes_key
+                    data=data
                 )
 
     except WebSocketDisconnect:
