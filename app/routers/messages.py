@@ -27,7 +27,7 @@ async def message_exchange(websocket: WebSocket, room_id: int, username: str, se
     '/{room_id}',
     status_code=status.HTTP_200_OK,
     response_model=List[MessageScheme],
-    #dependencies=Depends(JWTBearer())
+    dependencies=Depends(JWTBearer())
 )
 async def get_room_messages(session: SessionDep, room_id: int):
     room_messages = messages.get_room_messages(session=session, room_id=room_id)
