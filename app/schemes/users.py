@@ -2,8 +2,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 from app.models.roles import UserRole
-from app.models.rooms import Room
-from .messages import MessageScheme
 
 
 class UserRegistrationScheme(BaseModel):
@@ -24,9 +22,3 @@ class UserPublicScheme(BaseModel):
     patronymic: Optional[str]
     roles: Optional[List[UserRole]]
     description: Optional[str]
-
-
-class UserRoomScheme(BaseModel):
-    room: Room
-    members: Optional[List[UserPublicScheme]]
-    last_message: Optional[MessageScheme]

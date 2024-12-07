@@ -3,8 +3,7 @@ from typing import List, Annotated
 
 from app.internal.utils import JWTBearer, SessionDep
 from app.controllers import users
-from app.models.rooms import Room
-from app.schemes.users import UserPublicScheme, UserRoomScheme
+from app.schemes.rooms import UserPublicScheme, UserRoomScheme
 
 router = APIRouter(
     prefix='/users',
