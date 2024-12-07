@@ -1,8 +1,6 @@
 from sqlmodel import SQLModel, Field, Relationship
-from pydantic import BaseModel
 import datetime
 from typing import Optional
-from app.schemes.users import UserPublicScheme
 
 
 def get_datetime_factory():

@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from app.models.roles import UserRole
 from app.models.rooms import Room
+from app.models.messages import Message
 
 
 class UserRegistrationScheme(BaseModel):
@@ -28,3 +29,4 @@ class UserPublicScheme(BaseModel):
 class UserRoomScheme(BaseModel):
     room: Room
     senders: Optional[List[UserPublicScheme]]
+    last_message: Optional[Message]

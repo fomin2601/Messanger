@@ -3,6 +3,7 @@ from sqlalchemy import select
 from app.internal.utils import SessionDep, auth_controller
 from app.models.users import UserDB
 from app.models.links import RoomUserLink, UserRoleLink
+from app.models.messages import Message
 from app.controllers.rooms import get_users_in_room
 from app.schemes.users import UserRoomScheme
 
@@ -42,7 +43,10 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
                 room_id=room.id
             )
 
-        data = {'room': room, 'senders': senders}
+        statement = select(Message).where(Message.room_id == room.id).order_by(Message.id.desc())
+        last_message = session.exec(statement).scalars().first()
+
+        data = {'room': room, 'senders': senders, 'last_message': last_message}
 
         rooms.append(UserRoomScheme.parse_obj(data))
 
