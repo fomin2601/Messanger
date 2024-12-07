@@ -24,10 +24,7 @@ async def get_rooms_of_user(session: SessionDep, user_id: int):
     rooms = users.get_rooms_of_user(session=session, user_id=user_id)
 
     if not rooms:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User is not included in any room'
-        )
+        return []
 
     return rooms
 
