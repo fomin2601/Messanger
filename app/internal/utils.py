@@ -156,3 +156,31 @@ class WebsocketConnectionManager:
 
 
 websocket_manager = WebsocketConnectionManager()
+
+
+class KeysExchangeWebsocketManager:
+    def __init__(self):
+        self.room_superuser_connections: Dict[Tuple[int, int], WebSocket] = {}
+        self.room_user_connections: Dict[Tuple[int, int], WebSocket] = {}
+
+    async def superuser_connect(self, room_id: int,  superuser_id: int, websocket: WebSocket):
+        websocket_uid = (room_id, superuser_id)
+        await websocket.accept()
+        self.room_superuser_connections[websocket_uid] = websocket
+
+    def superuser_disconnect(self, room_id: int,  superuser_id: int):
+        websocket_uid = (room_id, superuser_id)
+        self.room_superuser_connections.pop(websocket_uid)
+
+    async def user_connect(self, room_id: int, user_id: int, websocket: WebSocket):
+        websocket_uid = (room_id, user_id)
+        await websocket.accept()
+        self.room_user_connections[websocket_uid] = websocket
+
+    def user_disconnect(self, room_id: int, user_id: int):
+        websocket_uid = (room_id, user_id)
+        self.room_user_connections.pop(websocket_uid)
+
+
+
+websocket_keys_exchange_manager = KeysExchangeWebsocketManager()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
 from typing import List
-from app.internal.utils import websocket_manager, SessionDep, JWTBearer
+from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
 from app.controllers import messages
 from app.models.messages import MessageScheme
 
@@ -33,3 +33,20 @@ async def get_room_messages(session: SessionDep, room_id: int):
     room_messages = messages.get_room_messages(session=session, room_id=room_id)
 
     return room_messages
+
+
+@router.websocket('/{room_id}/keys_exchange/ws')
+async def keys_exchange(websocket: WebSocket, room_id: int, user_id: int, is_superuser: bool):
+    if is_superuser:
+        await websocket_keys_exchange_manager.superuser_connect(
+            room_id=room_id,
+            superuser_id=user_id,
+            websocket=websocket
+        )
+
+    else:
+        await websocket_keys_exchange_manager.user_connect(
+            room_id=room_id,
+            user_id=user_id,
+            websocket=websocket
+        )
