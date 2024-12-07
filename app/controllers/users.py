@@ -6,6 +6,7 @@ from app.models.links import RoomUserLink, UserRoleLink
 from app.models.messages import Message
 from app.controllers.rooms import get_users_in_room
 from app.schemes.users import UserRoomScheme
+from app.schemes.messages import MessageScheme
 
 
 def get_all_users(session: SessionDep):
@@ -35,18 +36,22 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
         room = link.room
 
         if room.is_group:
-            senders = []
+            members = []
 
         else:
-            senders = get_users_in_room(
+            members = get_users_in_room(
                 session=session,
                 room_id=room.id
             )
 
         statement = select(Message).where(Message.room_id == room.id).order_by(Message.id.desc())
         last_message = session.exec(statement).scalars().first()
+        last_message = MessageScheme.parse_obj({
+            'message': last_message,
+            'sender': last_message.sender
+        })
 
-        data = {'room': room, 'senders': senders, 'last_message': last_message}
+        data = {'room': room, 'members': members, 'last_message': last_message}
 
         rooms.append(UserRoomScheme.parse_obj(data))
 
