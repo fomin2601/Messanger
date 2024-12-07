@@ -2,7 +2,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
 from typing import List
 from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
 from app.controllers import messages
-from app.models.messages import MessageScheme
+from app.schemes.messages import MessageScheme
 
 router = APIRouter(
     prefix='/messages',

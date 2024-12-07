@@ -11,6 +11,7 @@ from fastapi.security import (
 )
 from passlib.context import CryptContext
 from app.models.messages import Message
+from app.schemes.messages import RSAScheme, AESScheme
 from app.config import predefined_tables
 
 
@@ -133,6 +134,7 @@ class WebsocketConnectionManager:
 
     async def send_message(self, room_id: int, message: Message):
         room_connections = self.rooms.get(room_id, None)
+        #TODO: Заменить на MessageScheme
         data = {
             'message': message.model_dump(),
             'sender': message.sender.model_dump()
@@ -186,7 +188,8 @@ class KeysExchangeWebsocketManager:
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            await target_websocket.send_json({'public_rsa_key': public_rsa_key})
+            key = RSAScheme().parse_obj({'public_rsa_key': public_rsa_key})
+            await target_websocket.send_json(key)
 
         else:
             #TODO: Посмотреть, как ожидать коннекта пользователя
@@ -197,7 +200,8 @@ class KeysExchangeWebsocketManager:
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            await target_websocket.send_json({'aes_key': aes_key})
+            key = AESScheme().parse_obj({'aes_key': aes_key})
+            await target_websocket.send_json(key)
 
         else:
             # TODO: Посмотреть, как ожидать коннекта пользователя

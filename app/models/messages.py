@@ -19,8 +19,3 @@ class Message(SQLModel, table=True):
     sender: Optional["UserDB"] = Relationship(back_populates='messages')
     room_id: int = Field(foreign_key='room.id')
     room: Optional["Room"] = Relationship(back_populates='messages')
-
-
-class MessageScheme(BaseModel):
-    message: Message
-    sender: UserPublicScheme
