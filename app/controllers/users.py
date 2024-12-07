@@ -33,7 +33,6 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
         return False
 
     rooms = []
-    print(room_user_links)
     for link in room_user_links:
         room = link.room
 
