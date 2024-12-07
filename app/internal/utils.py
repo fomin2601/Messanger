@@ -181,6 +181,27 @@ class KeysExchangeWebsocketManager:
         websocket_uid = (room_id, user_id)
         self.room_user_connections.pop(websocket_uid)
 
+    async def send_user_key_to_superuser(self, room_id: int, target_superuser_id: int, public_rsa_key: str):
+        websocket_uid = (room_id, target_superuser_id)
+        target_websocket = self.room_superuser_connections.get(websocket_uid, None)
+
+        if target_websocket is not None:
+            await target_websocket.send_json({'public_rsa_key': public_rsa_key})
+
+        else:
+            #TODO: Посмотреть, как ожидать коннекта пользователя
+            pass
+
+    async def send_superuser_key_to_user(self, room_id: int, target_user_id: int, aes_key: int):
+        websocket_uid = (room_id, target_user_id)
+        target_websocket = self.room_superuser_connections.get(websocket_uid, None)
+
+        if target_websocket is not None:
+            await target_websocket.send_json({'aes_key': aes_key})
+
+        else:
+            # TODO: Посмотреть, как ожидать коннекта пользователя
+            pass
 
 
 websocket_keys_exchange_manager = KeysExchangeWebsocketManager()
