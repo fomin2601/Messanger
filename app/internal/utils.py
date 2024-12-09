@@ -188,7 +188,6 @@ class KeysExchangeWebsocketManager:
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            #key = RSAScheme.parse_obj({'public_rsa_key': public_rsa_key})
             await target_websocket.send_json(data)
 
         else:
@@ -200,7 +199,6 @@ class KeysExchangeWebsocketManager:
         target_websocket = self.room_superuser_connections.get(websocket_uid, None)
 
         if target_websocket is not None:
-            #key = AESScheme.parse_obj({'aes_key': aes_key})
             await target_websocket.send_json(data)
 
         else:
