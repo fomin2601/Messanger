@@ -47,20 +47,19 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
 
         statement = select(Message).where(Message.room_id == room.id).order_by(Message.id.desc())
         last_message = session.exec(statement).scalars().first()
-        if last_message is None:
-            continue
 
-        sender = last_message.sender
-        statement = select(UserRoleLink).where(UserRoleLink.user_id == sender.id)
-        roles = [role.role for role in session.exec(statement).scalars().all()]
-        sender = sender.model_dump()
-        sender.update({'roles': roles})
-        sender = UserPublicScheme.parse_obj(sender)
+        if last_message is not None:
+            sender = last_message.sender
+            statement = select(UserRoleLink).where(UserRoleLink.user_id == sender.id)
+            roles = [role.role for role in session.exec(statement).scalars().all()]
+            sender = sender.model_dump()
+            sender.update({'roles': roles})
+            sender = UserPublicScheme.parse_obj(sender)
 
-        last_message = MessageScheme.parse_obj({
-            'message': last_message,
-            'sender': sender
-        })
+            last_message = MessageScheme.parse_obj({
+                'message': last_message,
+                'sender': sender
+            })
 
         data = {'room': room, 'members': members, 'last_message': last_message}
 

@@ -10,6 +10,7 @@ def get_datetime_factory():
 class Message(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     text: str = Field(nullable=False)
+    iv: str = Field(nullable=False)
     date_time: str = Field(default_factory=get_datetime_factory, nullable=False)
     status: str = Field(default='Common message', nullable=False)
     message_type: str = Field(default='text')
