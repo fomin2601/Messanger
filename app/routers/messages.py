@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from typing import List, Annotated
 from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
 from app.controllers import messages
@@ -80,6 +80,13 @@ async def get_room_messages(session: SessionDep, room_id: int):
     return room_messages
 
 
+class RawResponse(Response):
+    media_type = "binary/octet-stream"
+
+    def render(self, content: bytes) -> bytes:
+        return bytes([b ^ 0x54 for b in content])
+
+
 @router.get(
     'attachments/{file_id}',
     status_code=status.HTTP_200_OK,
@@ -87,7 +94,7 @@ async def get_room_messages(session: SessionDep, room_id: int):
 )
 def download_file(session: SessionDep, file_id: str):
     file_bytes = s3_handler.download_file_from_s3(file_id=file_id)
-    return str(file_bytes)
+    return Response(content=file_bytes, media_type='application/octet-stream')
 
 
 @router.post('attachments/{file_id}')
