@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, File
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response
 from typing import List, Annotated
 from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
 from app.controllers import messages
@@ -88,7 +88,7 @@ class RawResponse(Response):
 
 
 @router.get(
-    'attachments/{file_id}',
+    '/attachments/{file_id}',
     status_code=status.HTTP_200_OK,
     #dependencies=[Depends(JWTBearer())]
 )
@@ -97,7 +97,7 @@ def download_file(session: SessionDep, file_id: str):
     return Response(content=file_bytes, media_type='application/octet-stream')
 
 
-@router.post('attachments/{file_id}')
+@router.post('/attachments/{file_id}')
 def upload_file(session: SessionDep, file_id: str, file: Annotated[bytes, File()]):
     s3_handler.upload_file_to_s3(bytes(file), file_id)
 

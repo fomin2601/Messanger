@@ -1,5 +1,4 @@
 import boto3
-from typing import Optional
 
 
 class S3Handler:
@@ -10,7 +9,7 @@ class S3Handler:
         self.s3_base_url = 'https://storage.yandexcloud.net/'
         self.bucket = 'messenger-fomin2601'
 
-    def upload_file_to_s3(self, file: bytes, file_id: str):
+    def upload_file_to_s3(self, file: bytes, file_id: str) -> bool:
         s3_session = self._get_session()
         try:
             s3_session.put_object(Body=file, Bucket=self.bucket, Key=f'messenger/{file_id}')
@@ -19,7 +18,7 @@ class S3Handler:
         except:
             return False
 
-    def download_file_from_s3(self, file_id: str):
+    def download_file_from_s3(self, file_id: str) -> bytes:
         s3_session = self._get_session()
         object_response = s3_session.get_object(Bucket=self.bucket, Key=f'messenger/{file_id}')
         return object_response['Body'].read()
