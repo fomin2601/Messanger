@@ -1,8 +1,11 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends
-from typing import List
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, File
+from fastapi.responses import FileResponse
+from typing import List, Annotated
 from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
 from app.controllers import messages
 from app.schemes.messages import MessageScheme
+from app.internal.s3 import s3_handler
+
 
 router = APIRouter(
     prefix='/messages',
@@ -21,18 +24,6 @@ async def message_exchange(websocket: WebSocket, session: SessionDep, room_id: i
             await websocket_manager.send_message(room_id=room_id, message=message)
     except WebSocketDisconnect:
         websocket_manager.disconnect(room_id=room_id, username=username)
-
-
-@router.get(
-    '/{room_id}',
-    status_code=status.HTTP_200_OK,
-    response_model=List[MessageScheme],
-    dependencies=[Depends(JWTBearer())]
-)
-async def get_room_messages(session: SessionDep, room_id: int):
-    room_messages = messages.get_room_messages(session=session, room_id=room_id)
-
-    return room_messages
 
 
 @router.websocket('/{room_id}/keys_exchange/ws')
@@ -75,3 +66,31 @@ async def keys_exchange(websocket: WebSocket, room_id: int, user_id: int, is_sup
 
         else:
             websocket_keys_exchange_manager.user_disconnect(room_id=room_id, user_id=user_id)
+
+
+@router.get(
+    '/{room_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MessageScheme],
+    dependencies=[Depends(JWTBearer())]
+)
+async def get_room_messages(session: SessionDep, room_id: int):
+    room_messages = messages.get_room_messages(session=session, room_id=room_id)
+
+    return room_messages
+
+
+@router.get(
+    'attachments/{file_id}',
+    status_code=status.HTTP_200_OK,
+    #dependencies=[Depends(JWTBearer())]
+)
+def download_file(session: SessionDep, file_id: str):
+    file_bytes = s3_handler.download_file_from_s3(file_id=file_id)
+    return str(file_bytes)
+
+
+@router.post('attachments/{file_id}')
+def upload_file(session: SessionDep, file_id: str, file: Annotated[bytes, File()]):
+    s3_handler.upload_file_to_s3(bytes(file), file_id)
+
