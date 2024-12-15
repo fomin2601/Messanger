@@ -65,6 +65,9 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
 
         rooms.append(UserRoomScheme.parse_obj(data))
 
+    #TODO: Make mesage sorting by date
+    rooms.sort(key=lambda elem: elem.last_message.id if elem.last_message is not None else float('inf'))
+
     return rooms
 
 
