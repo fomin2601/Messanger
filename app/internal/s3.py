@@ -1,5 +1,7 @@
 import boto3
 
+MAX_FILE_SIZE_MB = 100
+
 
 class S3Handler:
     """
@@ -11,10 +13,13 @@ class S3Handler:
 
     def upload_file_to_s3(self, file: bytes, file_id: str) -> bool:
         s3_session = self._get_session()
+
+        if len(file) > MAX_FILE_SIZE_MB * 1024 * 1024:
+            return False
+
         try:
             s3_session.put_object(Body=file, Bucket=self.bucket, Key=f'messenger/{file_id}')
             return True
-
         except:
             return False
 

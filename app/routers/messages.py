@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, File
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, Depends, File, HTTPException
 from fastapi.responses import Response
 from typing import List, Annotated
 from app.internal.utils import websocket_manager, websocket_keys_exchange_manager, SessionDep, JWTBearer
@@ -90,14 +90,25 @@ class RawResponse(Response):
 @router.get(
     '/attachments/{file_id}',
     status_code=status.HTTP_200_OK,
-    #dependencies=[Depends(JWTBearer())]
+    dependencies=[Depends(JWTBearer())]
 )
 def download_file(session: SessionDep, file_id: str):
     file_bytes = s3_handler.download_file_from_s3(file_id=file_id)
     return Response(content=file_bytes, media_type='application/octet-stream')
 
 
-@router.post('/attachments/{file_id}')
+@router.post(
+    '/attachments/{file_id}',
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(JWTBearer())]
+)
 def upload_file(session: SessionDep, file_id: str, file: Annotated[bytes, File()]):
-    s3_handler.upload_file_to_s3(bytes(file), file_id)
+    is_downloaded = s3_handler.upload_file_to_s3(bytes(file), file_id)
+
+    if not is_downloaded:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File is too big"
+        )
+
 
