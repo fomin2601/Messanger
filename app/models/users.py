@@ -34,7 +34,7 @@ class UserDB(User, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(index=True)
     hashed_password: str = Field(title="User's password")
-    is_active: bool = Field(title="User's activity status")
+    is_active: bool = Field(title="User's activity status", default=False)
     created_rooms: Optional[List["Room"]] = Relationship(
         back_populates='room_creator'
     )
