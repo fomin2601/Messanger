@@ -4,9 +4,6 @@ MAX_FILE_SIZE_MB = 100
 
 
 class S3Handler:
-    """
-    Саша, у тебя в папке user/.aws лежат 2 файла с конфигом. Надо также сделать у Алёны и не забыть про них
-    """
     def __init__(self):
         self.s3_base_url = 'https://storage.yandexcloud.net/'
         self.bucket = 'messenger-fomin2601'
