@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.post('/login', status_code=status.HTTP_200_OK)
-async def login_for_access_token(response: Response, session: SessionDep, user: UserLogin) -> Token:
+async def login_for_access_token(session: SessionDep, user: UserLogin) -> Token:
     token = auth.login_for_access_token(session=session, user=user)
 
     return token
@@ -25,17 +25,23 @@ async def registration(response: Response, session: SessionDep, user: UserRegist
 
     if not username:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return HTTPException(status_code=400, detail='That username is taken')
+        return HTTPException(
+            status_code=400,
+            detail='That username is taken'
+        )
 
     return jsonable_encoder({'Status': True})
 
 
 @router.patch('/registration', status_code=status.HTTP_202_ACCEPTED)
-async def change_password(response: Response, session: SessionDep, user: UserLogin, data: UserUpdate):
+async def change_password(session: SessionDep, user: UserLogin, data: UserUpdate):
     username = auth.update_password(session=session, user=user, data=data)
 
     if username:
         return jsonable_encoder({'Status': True})
 
-    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Something really bad happened')
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail='Something really bad happened'
+    )
 

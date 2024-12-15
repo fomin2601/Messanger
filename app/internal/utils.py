@@ -73,14 +73,15 @@ class Auth:
         payload = jwt.decode(token, self._SECRET_KEY, algorithms=[self._ALGORITHM])
         username: str = payload.get('sub', None)
         expired = payload.get('exp', None)
+        is_active: bool = payload.get('status', None)
 
         if username is None or expired is None:
             return None
 
-        if expired < time.time():
+        if expired < time.time() or not is_active:
             return None
 
-        return payload
+        return True
 
 
 auth_controller = Auth()
@@ -102,11 +103,11 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(status_code=403, detail='Invalid authorization code')
 
     @staticmethod
-    def verify_jwt(jwtoken: str) -> bool:
+    def verify_jwt(jwt_token: str) -> bool:
         is_token_valid: bool = False
 
         try:
-            payload = auth_controller.decode_jwt(jwtoken)
+            payload = auth_controller.decode_jwt(jwt_token)
         except:
             payload = None
 

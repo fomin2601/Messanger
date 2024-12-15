@@ -37,8 +37,17 @@ def login_for_access_token(session: SessionDep, user: UserLogin):
             detail="Incorrect username or password",
         )
 
+    if not user_entity.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User is inactive",
+        )
+
     access_token = auth_controller.create_jwt(
-        data={'sub': user_entity.username},
+        data={
+            'sub': user_entity.username,
+            'status': user_entity.is_active
+        },
     )
     return Token(access_token=access_token, token_type='Bearer')
 
