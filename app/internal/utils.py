@@ -81,7 +81,7 @@ class Auth:
         if expired < time.time() or not is_active:
             return None
 
-        return True
+        return payload
 
 
 auth_controller = Auth()
