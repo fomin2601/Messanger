@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from app.models.roles import UserRole
@@ -22,4 +22,13 @@ class UserPublicScheme(BaseModel):
     patronymic: Optional[str]
     roles: Optional[List[UserRole]]
     is_active: bool
+    description: Optional[str]
+
+
+class UserUpdateScheme(BaseModel):
+    username: Optional[str]
+    first_name: Optional[str]
+    second_name: Optional[str]
+    patronymic: Optional[str]
+    roles: Optional[List[UserRole]] = Field(nullable=True)
     description: Optional[str]
