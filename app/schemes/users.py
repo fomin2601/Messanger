@@ -21,4 +21,5 @@ class UserPublicScheme(BaseModel):
     second_name: str
     patronymic: Optional[str]
     roles: Optional[List[UserRole]]
+    is_active: bool
     description: Optional[str]
