@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from app.internal.utils import SessionDep, auth_controller
 from app.models.users import UserDB
@@ -82,3 +82,16 @@ def get_current_user(session: SessionDep, token: str):
     user_json.update({'roles': [role.role for role in roles]})
 
     return user_json
+
+
+def delete_user(session: SessionDep, user_id: int):
+    statement = delete(UserRoleLink).where(UserRoleLink.user_id == user_id)
+    session.exec(statement)
+
+    statement = delete(RoomUserLink).where(RoomUserLink.user_id == user_id)
+    session.exec(statement)
+
+    statement = delete(UserDB).where(UserDB.id == user_id)
+    session.exec(statement)
+
+    session.commit()

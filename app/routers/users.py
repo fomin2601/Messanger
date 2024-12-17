@@ -38,3 +38,8 @@ async def get_current_user(token: Annotated[str, Depends(JWTBearer())], session:
         )
 
     return user
+
+
+@router.delete('/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(session: SessionDep, user_id: int):
+    users.delete_user(session=session, user_id=user_id)
