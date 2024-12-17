@@ -7,7 +7,7 @@ from app.models.messages import Message
 from app.controllers.rooms import get_users_in_room
 from app.schemes.rooms import UserRoomScheme
 from app.schemes.messages import MessageScheme
-from app.schemes.users import UserPublicScheme
+from app.schemes.users import UserPublicScheme, UserUpdateScheme
 
 
 def get_all_users(session: SessionDep):
@@ -66,7 +66,7 @@ def get_rooms_of_user(session: SessionDep, user_id: int):
         rooms.append(UserRoomScheme.parse_obj(data))
 
     #TODO: Make mesage sorting by date
-    rooms.sort(key=lambda elem: elem.last_message.id if elem.last_message is not None else float('inf'))
+    rooms.sort(key=lambda elem: elem.last_message.message.id if elem.last_message is not None else float('inf'))
 
     return rooms
 
