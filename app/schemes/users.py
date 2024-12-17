@@ -30,5 +30,5 @@ class UserUpdateScheme(BaseModel):
     first_name: Optional[str]
     second_name: Optional[str]
     patronymic: Optional[str]
-    roles: Optional[List[UserRole]] = Field(nullable=True)
+    roles: Optional[List[int]]
     description: Optional[str]

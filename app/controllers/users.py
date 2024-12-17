@@ -4,10 +4,12 @@ from app.internal.utils import SessionDep, auth_controller
 from app.models.users import UserDB
 from app.models.links import RoomUserLink, UserRoleLink
 from app.models.messages import Message
+from app.models.roles import UserRole
 from app.controllers.rooms import get_users_in_room
 from app.schemes.rooms import UserRoomScheme
 from app.schemes.messages import MessageScheme
 from app.schemes.users import UserPublicScheme, UserUpdateScheme
+from app.controllers.auth import add_roles_to_user
 
 
 def get_all_users(session: SessionDep):
@@ -95,3 +97,30 @@ def delete_user(session: SessionDep, user_id: int):
     session.exec(statement)
 
     session.commit()
+
+
+def update_user_info(session: SessionDep, user_id: int, user_data: UserUpdateScheme):
+    user_info = user_data.model_dump(exclude_none=True)
+    roles = user_info.pop('roles') if user_info.get('roles', False) else []
+
+    user_entity = session.get(UserDB, user_id)
+
+    user_entity.sqlmodel_update(user_info)
+    session.add(user_entity)
+    session.commit()
+    session.refresh(user_entity)
+
+    user = user_entity.model_dump()
+
+    if len(roles) > 0:
+        statement = delete(UserRoleLink).where(UserRoleLink.user_id == user_id)
+        session.exec(statement)
+
+        add_roles_to_user(session=session, user=user_entity, roles=roles)
+
+    statement = select(UserRole).where(UserRole.id.in_(roles))
+    roles = session.exec(statement).scalars().all()
+
+    user.update({'roles': roles})
+
+    return user

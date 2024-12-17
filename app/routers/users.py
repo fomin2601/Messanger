@@ -3,7 +3,8 @@ from typing import List, Annotated
 
 from app.internal.utils import JWTBearer, SessionDep
 from app.controllers import users
-from app.schemes.rooms import UserPublicScheme, UserRoomScheme
+from app.schemes.rooms import UserRoomScheme
+from app.schemes.users import UserPublicScheme, UserUpdateScheme
 
 router = APIRouter(
     prefix='/users',
@@ -43,3 +44,10 @@ async def get_current_user(token: Annotated[str, Depends(JWTBearer())], session:
 @router.delete('/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(session: SessionDep, user_id: int):
     users.delete_user(session=session, user_id=user_id)
+
+
+@router.patch('/{user_id}', status_code=status.HTTP_200_OK, response_model=UserPublicScheme)
+async def update_user_info(session: SessionDep, user_id: int, user_data: UserUpdateScheme):
+    user = users.update_user_info(session=session, user_id=user_id, user_data=user_data)
+
+    return user
