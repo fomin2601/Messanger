@@ -71,7 +71,7 @@ def update_password(session: SessionDep, user: UserLogin, data: UserUpdate):
     if not user_entity:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='User doesn\'t exist'
+            detail='User doesn\'t exist anywhere'
         )
 
     data_for_update = data.model_dump(exclude_unset=True)
