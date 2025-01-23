@@ -27,9 +27,6 @@ predefined_tables = {
     ],
     'userrolelink': [
         {'user_id': 0, 'role_id': 0},
-        {'user_id': 0, 'role_id': 1},
-        {'user_id': 0, 'role_id': 2},
-        {'user_id': 0, 'role_id': 3},
     ]
 }
 
