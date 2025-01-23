@@ -32,3 +32,8 @@ class UserUpdateScheme(BaseModel):
     patronymic: Optional[str]
     roles: Optional[List[int]]
     description: Optional[str]
+
+
+class UserLoginScheme(BaseModel):
+    username: str
+    hashed_password: str
