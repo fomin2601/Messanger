@@ -3,8 +3,8 @@ from sqlmodel import create_engine, Session, insert
 from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel
 from sqlmodel.pool import StaticPool
-from app.schemes.users import UserRegistrationScheme
-
+from app.schemes.users import UserRegistrationScheme, UserLoginScheme, UserUpdateScheme
+from app.models.users import UserUpdate
 
 predefined_tables = {
     'userrole': [
@@ -16,14 +16,34 @@ predefined_tables = {
     'userdb': [
         {
             'id': 0,
-            'username': 'default_username',
+            'username': 'default_active_username',
             'hashed_password': 'default_hashed_password',
             'is_active': True,
             'first_name': 'default_name',
             'second_name': 'default_second_name',
             'patronymic': 'default_patronymic',
             'description': 'default_description',
-        }
+        },
+        {
+            'id': 1,
+            'username': 'default_inactive_username',
+            'hashed_password': 'default_hashed_password',
+            'is_active': False,
+            'first_name': 'default_name',
+            'second_name': 'default_second_name',
+            'patronymic': 'default_patronymic',
+            'description': 'default_description',
+        },
+        {
+            'id': 2,
+            'username': 'default_user_for_password_update',
+            'hashed_password': 'default_hashed_password',
+            'is_active': False,
+            'first_name': 'default_name',
+            'second_name': 'default_second_name',
+            'patronymic': 'default_patronymic',
+            'description': 'default_description',
+        },
     ],
     'userrolelink': [
         {'user_id': 0, 'role_id': 0},
@@ -56,13 +76,57 @@ def db_session() -> Session:
 
 
 @pytest.fixture(scope='function')
-def user_entity() -> UserRegistrationScheme:
+def user_registration_entity() -> UserRegistrationScheme:
     return UserRegistrationScheme(
-            username='test_username',
-            hashed_password='test_hashed_password',
-            first_name='test_name',
-            second_name='test_surname',
-            patronymic='test_patronymic',
-            roles=[0, 1, 2, 3],
-            description='test_description',
-        )
+        username='test_username',
+        hashed_password='test_hashed_password',
+        first_name='test_name',
+        second_name='test_surname',
+        patronymic='test_patronymic',
+        roles=[0, 1, 2, 3],
+        description='test_description'
+    )
+
+
+@pytest.fixture(scope='function')
+def credentials_active() -> UserLoginScheme:
+    return UserLoginScheme(
+        username='default_active_username',
+        hashed_password='default_hashed_password'
+    )
+
+
+@pytest.fixture(scope='function')
+def credentials_inactive() -> UserLoginScheme:
+    return UserLoginScheme(
+        username='default_inactive_username',
+        hashed_password='default_hashed_password'
+    )
+
+
+@pytest.fixture(scope='function')
+def credentials_for_update() -> UserLoginScheme:
+    return UserLoginScheme(
+        username='default_user_for_password_update',
+        hashed_password='default_hashed_password'
+    )
+
+
+@pytest.fixture(scope='function')
+def missing_user() -> UserLoginScheme:
+    return UserLoginScheme(
+        username='missing_username',
+        hashed_password='default_hashed_password'
+    )
+
+
+@pytest.fixture(scope='function')
+def user_password_for_update() -> UserUpdate:
+    return UserUpdate(
+        hashed_password='updated_password',
+    )
+
+
+@pytest.fixture(scope='function')
+def token_expiration_time() -> int:
+    return 24 * 60 * 7 * 60
